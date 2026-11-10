@@ -1,0 +1,25 @@
+# Optional: run MySQL in Docker instead of installing it locally.
+#   docker compose up -d db
+# Then set DB_USER=national_mail / DB_PASSWORD=national_mail in backend/.env
+services:
+  db:
+    image: mysql:8.0
+    container_name: national-mail-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: national_mail
+      MYSQL_USER: national_mail
+      MYSQL_PASSWORD: national_mail
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - national_mail_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  national_mail_mysql:

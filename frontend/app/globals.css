@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white font-sans text-base text-body antialiased;
+    font-feature-settings: 'kern', 'liga';
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif text-ink-900;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+  ::selection {
+    background: #f7e4e3;
+    color: #101a30;
+  }
+  :focus-visible {
+    outline: 2px solid #b4232a;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .container-site {
+    @apply mx-auto w-full max-w-site px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Headline link: underline grows on hover, colour stays put */
+  .headline-link {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.25s ease;
+  }
+  .group:hover .headline-link,
+  .headline-link:hover,
+  .headline-link:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Postage-stamp frame with perforated edges, used once on the lead story */
+  .stamp {
+    --r: 7px;
+    padding: calc(2.2 * var(--r));
+    background:
+      radial-gradient(var(--r), #0000 97%, #fff) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) / calc(3 * var(--r)) calc(3 * var(--r)),
+      linear-gradient(#fff 0 0) no-repeat 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r));
+    filter: drop-shadow(0 1px 1px rgba(16, 26, 48, 0.12)) drop-shadow(0 8px 18px rgba(16, 26, 48, 0.1));
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary { @apply btn bg-post text-white hover:bg-post-dark; }
+  .btn-ink { @apply btn bg-ink text-white hover:bg-ink-900; }
+  .btn-ghost { @apply btn border border-line bg-white text-ink hover:border-ink/40 hover:bg-mist; }
+  .btn-danger { @apply btn border border-post/30 bg-white text-post hover:bg-post-light; }
+
+  .field {
+    @apply block w-full rounded-md border border-line bg-white px-3 py-2 text-base text-body placeholder:text-muted/70 focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/15;
+  }
+  .label { @apply mb-1 block text-sm font-semibold text-ink-900; }
+  .hint { @apply mt-1 text-xs text-muted; }
+}
+
+/* ---------- Article body ---------- */
+.article-body {
+  font-family: 'Newsreader Variable', Georgia, serif;
+  font-size: 1.1875rem;
+  line-height: 1.75;
+}
+@media (min-width: 768px) {
+  .article-body { font-size: 1.25rem; }
+}
+.article-body > p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.6em;
+  line-height: 0.85;
+  font-weight: 600;
+  padding: 0.08em 0.1em 0 0;
+  color: #b4232a;
+}
+.article-body blockquote {
+  font-size: 1.35em;
+  line-height: 1.4;
+  font-style: italic;
+  border-left-width: 3px;
+  padding-left: 1em;
+  quotes: none;
+}
+.article-body blockquote p::before,
+.article-body blockquote p::after { content: none; }
+.article-body img { border-radius: 4px; }
+.article-body iframe,
+.article-body video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border-radius: 4px;
+}
+.article-body div[data-youtube-video] { margin: 2em 0; }
+.article-body a { text-underline-offset: 3px; }
+
+/* ---------- Rich text editor (admin) ---------- */
+.tiptap {
+  min-height: 420px;
+  outline: none;
+  padding: 1.25rem 1.5rem;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9aa3b2;
+  pointer-events: none;
+  height: 0;
+}
+.tiptap img.ProseMirror-selectednode,
+.tiptap div[data-youtube-video].ProseMirror-selectednode iframe {
+  outline: 3px solid #b4232a;
+}
+
+/* Horizontal scrollers without a visible scrollbar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

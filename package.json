@@ -1,0 +1,17 @@
+{
+  "name": "the-national-mail",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The National Mail: a news website with a Next.js frontend, Express API and MySQL database",
+  "scripts": {
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "setup:env": "node -e \"const fs=require('fs');[['backend/.env.example','backend/.env'],['frontend/.env.example','frontend/.env.local']].forEach(([a,b])=>{if(!fs.existsSync(b)){fs.copyFileSync(a,b);console.log('created',b)}else console.log('kept existing',b)})\"",
+    "db:setup": "npm --prefix backend run db:setup",
+    "dev": "concurrently -n api,web -c blue,red \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "build": "npm --prefix frontend run build",
+    "start": "concurrently -n api,web -c blue,red \"npm --prefix backend start\" \"npm --prefix frontend start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
