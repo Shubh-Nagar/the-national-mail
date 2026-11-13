@@ -41,6 +41,17 @@
     @apply mx-auto w-full max-w-site px-4 sm:px-6 lg:px-8;
   }
 
+  /* Homepage band washed in its section's colour (set inline as --band-bg / --band-line,
+     falling back to the theme tint), with rules in a stronger shade so they stay visible */
+  .band-tint {
+    background-color: var(--band-bg, #F3F8F9);
+    border-block: 1px solid var(--band-line, theme('colors.letter.300'));
+  }
+  .band-tint .border-line,
+  .band-tint .divide-line > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--band-line, theme('colors.letter.300'));
+  }
+
   /* Headline link: underline grows on hover, colour stays put */
   .headline-link {
     background-image: linear-gradient(currentColor, currentColor);

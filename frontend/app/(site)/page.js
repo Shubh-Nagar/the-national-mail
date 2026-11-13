@@ -66,7 +66,28 @@ function MostRead({ articles }) {
   );
 }
 
-function CategorySection({ section, flip }) {
+// Mixes a #RRGGBB colour with white; `amount` is how much of the colour to keep (0-1).
+function tint(hex, amount) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  const mix = (c) => Math.round(255 - (255 - c) * amount).toString(16).padStart(2, '0');
+  return `#${mix(n >> 16)}${mix((n >> 8) & 255)}${mix(n & 255)}`;
+}
+
+// Full-width band behind a homepage section. Homepage sections alternate: a `tinted` band
+// takes a soft wash of `color` (or the theme tint without one); the others are white.
+function Band({ tinted, color, className = '', children, ...props }) {
+  const bg = tinted ? tint(color, 0.07) : null;
+  const style = bg ? { '--band-bg': bg, '--band-line': tint(color, 0.3) } : undefined;
+  return (
+    <section className={`py-14 ${tinted ? 'band-tint' : 'bg-white'} ${className}`} style={style} {...props}>
+      <div className="container-site">{children}</div>
+    </section>
+  );
+}
+
+function CategorySection({ section, flip, tinted }) {
   const [first, ...rest] = section.articles;
   const heading = (
     <SectionHeading
@@ -81,17 +102,17 @@ function CategorySection({ section, flip }) {
   // Sparse sections read better as a simple row of cards.
   if (section.articles.length < 3) {
     return (
-      <section className="container-site mt-16" aria-labelledby={`sec-${section.category.slug}`}>
+      <Band tinted={tinted} color={section.category.color} aria-labelledby={`sec-${section.category.slug}`}>
         {heading}
         <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {section.articles.map((a) => <ArticleCard key={a.id} article={a} hideCategory />)}
         </div>
-      </section>
+      </Band>
     );
   }
 
   return (
-    <section className="container-site mt-16" aria-labelledby={`sec-${section.category.slug}`}>
+    <Band tinted={tinted} color={section.category.color} aria-labelledby={`sec-${section.category.slug}`}>
       {heading}
       <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
         <div className={`lg:col-span-6 ${flip ? 'lg:order-2' : ''}`}>
@@ -105,15 +126,13 @@ function CategorySection({ section, flip }) {
           ))}
         </div>
       </div>
-    </section>
+    </Band>
   );
 }
 
-function VideoBand({ videos }) {
-  if (!videos.length) return null;
+function VideoBand({ videos, tinted }) {
   return (
-    <section className="mt-16 bg-letter py-12" aria-labelledby="videos">
-      <div className="container-site">
+    <Band tinted={tinted} aria-labelledby="videos">
         <SectionHeading title={<span id="videos">Watch</span>} description="Stories with video from the field." color="#1B2A4A" />
         <ul className="no-scrollbar -mx-4 flex snap-x gap-5 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
           {videos.map((a) => (
@@ -132,8 +151,7 @@ function VideoBand({ videos }) {
             </li>
           ))}
         </ul>
-      </div>
-    </section>
+    </Band>
   );
 }
 
@@ -157,6 +175,12 @@ export default async function HomePage() {
 
   const [lead, ...secondary] = data.featured;
   const sections = data.sections || [];
+  const toBand = (section, i) => ({ section, flip: i % 2 === 1 });
+  const bands = [
+    ...sections.slice(0, 2).map(toBand),
+    ...(data.videos?.length ? [{ videos: data.videos }] : []),
+    ...sections.slice(2).map(toBand),
+  ];
 
   return (
     <>
@@ -227,12 +251,17 @@ export default async function HomePage() {
         </section>
       )}
 
-      {sections.slice(0, 2).map((s, i) => <CategorySection key={s.category.id} section={s} flip={i % 2 === 1} />)}
-      <VideoBand videos={data.videos} />
-      {sections.slice(2).map((s, i) => <CategorySection key={s.category.id} section={s} flip={i % 2 === 1} />)}
+      {/* Category sections and the video band; every other one is washed in its own colour */}
+      {bands.map((b, i) =>
+        b.videos ? (
+          <VideoBand key="videos" videos={b.videos} tinted={i % 2 === 0} />
+        ) : (
+          <CategorySection key={b.section.category.id} section={b.section} flip={b.flip} tinted={i % 2 === 0} />
+        ),
+      )}
 
       {/* Newsletter */}
-      <section id="newsletter" className="container-site mt-20 scroll-mt-20">
+      <section id="newsletter" className="container-site mt-14 scroll-mt-20">
         <div className="grid items-center gap-8 rounded-xl border border-letter-300 bg-letter px-6 py-10 sm:px-10 lg:grid-cols-2">
           <div>
             <h2 className="font-serif text-3xl font-semibold sm:text-4xl">Get the morning mail</h2>
